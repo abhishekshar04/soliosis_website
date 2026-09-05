@@ -13,71 +13,66 @@ export default function CustomCursor() {
     const glow = glowRef.current
     if (!cursor || !glow) return
 
+    let isHovering = false
+    let isClicking = false
+
     const onMove = (e) => {
-      pos.current = { x: e.clientX, y: e.clientY }
-      // Snap cursor to exact position
-      cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`
-      spawnStar(e.clientX, e.clientY)
+      pos.current.x = e.clientX
+      pos.current.y = e.clientY
     }
 
     const onDown = () => {
-      cursor.classList.add('cursor--click')
+      if (!isClicking) {
+        isClicking = true
+        cursor.classList.add('cursor--click')
+      }
     }
 
     const onUp = () => {
-      cursor.classList.remove('cursor--click')
-    }
-
-    const onEnterInteractive = (e) => {
-      if (e.target.closest('a, button, [role="button"], input, textarea, select, label')) {
-        cursor.classList.add('cursor--hover')
+      if (isClicking) {
+        isClicking = false
+        cursor.classList.remove('cursor--click')
       }
     }
 
-    const onLeaveInteractive = (e) => {
-      if (e.target.closest('a, button, [role="button"], input, textarea, select, label')) {
-        cursor.classList.remove('cursor--hover')
+    const onOver = (e) => {
+      const isInteractive = !!e.target.closest('a, button, [role="button"], input, textarea, select, label')
+      if (isInteractive !== isHovering) {
+        isHovering = isInteractive
+        if (isInteractive) cursor.classList.add('cursor--hover')
+        else cursor.classList.remove('cursor--hover')
       }
     }
 
-    // Spawn tiny star particle — very sparse
-    const spawnStar = (x, y) => {
-      if (Math.random() > 0.18) return
-      const star = document.createElement('div')
-      const size = Math.random() * 2 + 0.8
-      star.className = 'cursor-star'
-      star.style.cssText = `
-        left:${x + (Math.random() - 0.5) * 14}px;
-        top:${y + (Math.random() - 0.5) * 14}px;
-        width:${size}px;height:${size}px;
-      `
-      document.body.appendChild(star)
-      setTimeout(() => star.remove(), 750)
-    }
-
-    // Smooth glow follow with lerp
+    // Single consolidated RAF loop using translate3d for hardware acceleration
     const animate = () => {
-      const lerp = 0.1
-      glowPos.current.x += (pos.current.x - glowPos.current.x) * lerp
-      glowPos.current.y += (pos.current.y - glowPos.current.y) * lerp
-      glow.style.transform = `translate(${glowPos.current.x}px, ${glowPos.current.y}px) translate(-50%, -50%)`
+      const px = pos.current.x
+      const py = pos.current.y
+
+      // Direct cursor snap (GPU compositor accelerated)
+      cursor.style.transform = `translate3d(${px}px, ${py}px, 0)`
+
+      // Smooth lagging nebula aura
+      const lerp = 0.12
+      glowPos.current.x += (px - glowPos.current.x) * lerp
+      glowPos.current.y += (py - glowPos.current.y) * lerp
+      glow.style.transform = `translate3d(${glowPos.current.x}px, ${glowPos.current.y}px, 0) translate(-50%, -50%)`
+
       raf.current = requestAnimationFrame(animate)
     }
-    animate()
+    raf.current = requestAnimationFrame(animate)
 
-    window.addEventListener('mousemove', onMove)
-    document.addEventListener('mousedown', onDown)
-    document.addEventListener('mouseup', onUp)
-    document.addEventListener('mouseover', onEnterInteractive)
-    document.addEventListener('mouseout', onLeaveInteractive)
+    window.addEventListener('mousemove', onMove, { passive: true })
+    document.addEventListener('mousedown', onDown, { passive: true })
+    document.addEventListener('mouseup', onUp, { passive: true })
+    document.addEventListener('mouseover', onOver, { passive: true })
 
     return () => {
       window.removeEventListener('mousemove', onMove)
       document.removeEventListener('mousedown', onDown)
       document.removeEventListener('mouseup', onUp)
-      document.removeEventListener('mouseover', onEnterInteractive)
-      document.removeEventListener('mouseout', onLeaveInteractive)
-      cancelAnimationFrame(raf.current)
+      document.removeEventListener('mouseover', onOver)
+      if (raf.current) cancelAnimationFrame(raf.current)
     }
   }, [])
 

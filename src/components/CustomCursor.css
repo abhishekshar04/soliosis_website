@@ -2,9 +2,20 @@
    Galaxy Triangle Cursor — Refined & Subtle
    ============================================ */
 
-/* Kill native cursor everywhere */
-*, *::before, *::after {
-  cursor: none !important;
+/* Kill native cursor only on desktop/mouse devices */
+@media (hover: hover) and (pointer: fine) {
+  *, *::before, *::after {
+    cursor: none !important;
+  }
+}
+
+/* On touch/mobile devices, disable custom cursor entirely */
+@media (hover: none), (pointer: coarse) {
+  .cursor-glow,
+  .cursor-galaxy,
+  .cursor-star {
+    display: none !important;
+  }
 }
 
 /* ─── Soft glow aura (lags behind) ─────── */

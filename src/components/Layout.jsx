@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import Home from '../pages/Home'
 import Services from '../pages/Services'
+import Stats from '../pages/Stats'
 import About from '../pages/About'
 import Contact from '../pages/Contact'
 import CustomCursor from './CustomCursor'
@@ -22,21 +23,47 @@ export default function Layout() {
   useScrollReveal('[data-reveal]')
 
   useEffect(() => {
-    const onScroll = () => {
-      setScrolled(window.scrollY > 50)
+    let ticking = false
+    let lastScrolled = false
 
-      // Determine active section based on scroll position
-      const sections = ['home', 'services', 'about', 'contact']
-      for (let i = sections.length - 1; i >= 0; i--) {
-        const el = document.getElementById(sections[i])
-        if (el && window.scrollY >= el.offsetTop - 120) {
-          setActiveSection(sections[i])
-          break
-        }
+    const onScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const isScrolled = window.scrollY > 50
+          if (isScrolled !== lastScrolled) {
+            lastScrolled = isScrolled
+            setScrolled(isScrolled)
+          }
+          ticking = false
+        })
+        ticking = true
       }
     }
+
     window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
+
+    // Non-blocking IntersectionObserver for active section highlighting — zero scroll layout recalculation
+    const sections = ['home', 'services', 'stats', 'about', 'contact']
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id)
+          }
+        })
+      },
+      { rootMargin: '-20% 0px -65% 0px', threshold: 0 }
+    )
+
+    sections.forEach((id) => {
+      const el = document.getElementById(id)
+      if (el) observer.observe(el)
+    })
+
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      observer.disconnect()
+    }
   }, [])
 
   const handleNavClick = (e, hash) => {
@@ -72,10 +99,13 @@ export default function Layout() {
             className="brand"
             onClick={(e) => handleNavClick(e, '#home')}
           >
-            <div className="brand-icon">
-              <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>hexagon</span>
+            <div className="brand-icon solisio-brand-icon">
+              <img src="/solisio-icon.png" alt="Solisio Solutions Logo" className="brand-logo-img" />
             </div>
-            Lumina Logic
+            <div className="brand-text-block">
+              <span className="brand-name">Solisio Solutions</span>
+              <span className="brand-tagline">Chase your dreams</span>
+            </div>
           </a>
 
           {/* Desktop Nav */}
@@ -98,7 +128,7 @@ export default function Layout() {
             className="cta-btn desktop-only"
             onClick={(e) => handleNavClick(e, '#contact')}
           >
-            Get Started
+            Book an appointment
           </a>
 
           {/* Mobile toggle */}
@@ -131,7 +161,7 @@ export default function Layout() {
               style={{ marginTop: '8px', textAlign: 'center' }}
               onClick={(e) => handleNavClick(e, '#contact')}
             >
-              Get Started
+              Book an appointment
             </a>
           </div>
         )}
@@ -144,6 +174,9 @@ export default function Layout() {
         </section>
         <section id="services">
           <Services />
+        </section>
+        <section id="stats">
+          <Stats />
         </section>
         <section id="about">
           <About />
@@ -158,18 +191,20 @@ export default function Layout() {
         <div className="container footer-grid">
           <div className="footer-brand">
             <div className="footer-logo">
-              <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1", fontSize: '16px' }}>hexagon</span>
-              Lumina Logic
+              <img src="/solisio-icon.png" alt="Solisio Solutions" className="footer-logo-img" />
+              <span>Solisio Solutions</span>
             </div>
-            <p className="text-body-md footer-tagline">Engineering scalable intelligence for the digital frontier.</p>
+            <p className="footer-motto">Chase your dreams</p>
+            <p className="text-body-md footer-tagline">Engineering scalable intelligence and high-velocity digital architectures for forward-thinking enterprises.</p>
           </div>
 
           <div className="footer-links-group">
             <span className="footer-group-title text-label-md">Capabilities</span>
-            <a href="#services" className="footer-link text-body-md" onClick={(e) => handleNavClick(e, '#services')}>Services</a>
-            <a href="#services" className="footer-link text-body-md" onClick={(e) => handleNavClick(e, '#services')}>Cloud Architecture</a>
-            <a href="#services" className="footer-link text-body-md" onClick={(e) => handleNavClick(e, '#services')}>AI Strategy</a>
-            <a href="#services" className="footer-link text-body-md" onClick={(e) => handleNavClick(e, '#services')}>Cybersecurity</a>
+            <a href="#services" className="footer-link text-body-md" onClick={(e) => handleNavClick(e, '#services')}>Business & AI Integration</a>
+            <a href="#services" className="footer-link text-body-md" onClick={(e) => handleNavClick(e, '#services')}>AI Chatbots</a>
+            <a href="#services" className="footer-link text-body-md" onClick={(e) => handleNavClick(e, '#services')}>SEO & Website</a>
+            <a href="#services" className="footer-link text-body-md" onClick={(e) => handleNavClick(e, '#services')}>Email Marketing</a>
+            <a href="#services" className="footer-link text-body-md" onClick={(e) => handleNavClick(e, '#services')}>IT Consulting & KPO</a>
           </div>
 
           <div className="footer-links-group">
@@ -180,15 +215,26 @@ export default function Layout() {
 
           <div className="footer-links-group">
             <span className="footer-group-title text-label-md">Legal</span>
-            <a href="#" className="footer-link text-body-md">Privacy Policy</a>
-            <a href="#" className="footer-link text-body-md">Terms of Service</a>
+            <a href="#privacy" className="footer-link text-body-md" onClick={(e) => { e.preventDefault(); alert('Solisio Solutions Enterprise Privacy Standards: Zero third-party telemetry, end-to-end data segregation, and SOC-2 compliant processing.') }}>Privacy Policy</a>
+            <a href="#terms" className="footer-link text-body-md" onClick={(e) => { e.preventDefault(); alert('Solisio Solutions Terms of Engagement: Enterprise SLA with 99.9% uptime and dedicated technical advisory.') }}>Terms of Service</a>
           </div>
 
           <div className="footer-copy">
-            <p className="text-body-md">© 2024 Lumina Logic. All rights reserved.</p>
+            <p className="text-body-md">© 2025 Solisio Solutions Inc. All rights reserved.</p>
+            <p className="text-body-md" style={{ color: 'var(--color-primary)', fontSize: '13px', opacity: 0.8 }}>Chase your dreams • Built for Enterprise Scale</p>
           </div>
         </div>
       </footer>
+
+      {/* Floating Back to Top Button */}
+      <button
+        type="button"
+        className={`back-to-top-btn${scrolled ? ' back-to-top-btn--visible' : ''}`}
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        aria-label="Scroll back to top"
+      >
+        <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>arrow_upward</span>
+      </button>
     </div>
   )
 }

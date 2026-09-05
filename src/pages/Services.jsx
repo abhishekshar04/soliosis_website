@@ -1,60 +1,87 @@
 
+import { CardHoverEffect } from '../components/aceternity/CardHoverEffect'
+import { BackgroundBeams } from '../components/aceternity/BackgroundBeams'
 import './Services.css'
 
 const services = [
   {
-    id: 'ai-agents',
+    id: 'business-ai-integration',
+    icon: 'hub',
+    tag: 'Enterprise Intelligence',
+    title: 'Business and AI Integration',
+    desc: 'Seamlessly embed artificial intelligence directly into core business operations. We bridge legacy enterprise systems with autonomous neural pipelines, predictive modeling, and intelligent workflow automation to unlock exponential operational efficiency.',
+    metrics: ['Custom Neural Pipelines', 'Automated Decision Engines', 'Predictive Modeling'],
+    colSpan: 'svc-card--span-7',
+    glowClass: 'svc-glow--primary',
+  },
+  {
+    id: 'ai-chatbots',
     icon: 'smart_toy',
-    title: 'AI Agents',
-    desc: 'Deploy autonomous workflows that learn and adapt. Our AI agents handle complex, multi-step processes, freeing your team to focus on strategic initiatives.',
-    link: '/contact',
-    linkLabel: 'Explore AI Solutions',
-    size: 'large',
-    hasGlow: true,
+    tag: 'Conversational AI',
+    title: 'AI Chatbots',
+    desc: 'Deploy state-of-the-art conversational agents powered by fine-tuned LLMs and retrieval-augmented generation (RAG). Deliver 24/7 hyper-personalized customer experiences, instant query triage, and zero-downtime tier-1 support.',
+    metrics: ['RAG Architectures', 'Omnichannel Deploy', 'Sub-second Latency'],
+    colSpan: 'svc-card--span-5',
+    glowClass: 'svc-glow--secondary',
   },
   {
-    id: 'analytics',
-    icon: 'insights',
-    title: 'Data Analytics',
-    desc: 'Transform raw data into actionable intelligence. Gain real-time visibility into operations and predictive insights for growth.',
-    size: 'small',
-    hasGlow: true,
-    glowColor: 'secondary',
+    id: 'seo',
+    icon: 'trending_up',
+    tag: 'Organic Growth',
+    title: 'SEO',
+    desc: 'Technical search engine optimization architected for enterprise market domination. We engineer semantic content graphs, core web vital speed enhancements, and high-authority link structures that capture high-intent organic demand.',
+    metrics: ['Technical Audits', 'Semantic Search Graphs', '100% Core Web Vitals'],
+    colSpan: 'svc-card--span-4',
+    glowClass: 'svc-glow--tertiary',
   },
   {
-    id: 'cloud',
-    icon: 'cloud',
-    title: 'Cloud Consulting',
-    desc: 'Build resilient, scalable infrastructure. We design cloud architectures optimized for performance, security, and cost-efficiency.',
-    size: 'small',
+    id: 'website',
+    icon: 'language',
+    tag: 'Platform Engineering',
+    title: 'Website',
+    desc: 'Engineer ultra-fast, visually breathtaking, and conversion-optimized websites and digital platforms. Built with modern reactive frameworks, fluid micro-animations, and military-grade security for maximum digital authority.',
+    metrics: ['React / Vite Architecture', 'Zero-Lag Fluid UX', 'Enterprise Security'],
+    colSpan: 'svc-card--span-4',
+    glowClass: 'svc-glow--primary',
   },
   {
-    id: 'web',
-    icon: 'code',
-    title: 'Web Development',
-    desc: 'Engineer enterprise-grade web applications. We utilize modern frameworks to deliver high-performance, secure digital experiences.',
-    size: 'small',
-  },
-  {
-    id: 'mobile',
-    icon: 'ad_units',
-    title: 'App Development',
-    desc: 'Craft intuitive native and cross-platform mobile experiences that drive engagement and seamlessly integrate with your ecosystem.',
-    size: 'small',
-  },
-  {
-    id: 'email',
+    id: 'email-marketing',
     icon: 'mark_email_read',
+    tag: 'Lifecycle Marketing',
     title: 'Email Marketing',
-    desc: 'Drive engagement with high-conversion automation sequences. We design targeted, data-driven campaigns that nurture leads and maximize customer lifetime value.',
-    size: 'wide',
-    hasAction: true,
+    desc: 'High-conversion lifecycle automation sequences and behavioral lead nurturing. We design data-backed trigger campaigns that turn cold prospects into loyal advocates while maximizing customer lifetime value (LTV).',
+    metrics: ['Dynamic Personalization', 'Behavioral Segmentation', 'High Deliverability'],
+    colSpan: 'svc-card--span-4',
+    glowClass: 'svc-glow--secondary',
+  },
+  {
+    id: 'it-consulting',
+    icon: 'settings_suggest',
+    tag: 'Strategic Advisory',
+    title: 'IT Consulting',
+    desc: 'Strategic technology advisory and infrastructure modernization for high-growth enterprises. From multi-cloud migrations and zero-trust cybersecurity architectures to DevOps maturity, we align technical roadmaps with measurable business outcomes.',
+    metrics: ['Cloud Architecture', 'Zero-Trust Security', 'DevOps & CI/CD'],
+    colSpan: 'svc-card--span-6',
+    glowClass: 'svc-glow--primary',
+  },
+  {
+    id: 'kpo',
+    icon: 'analytics',
+    tag: 'Knowledge Operations',
+    title: 'KPO',
+    desc: 'High-value Knowledge Process Outsourcing delivered by vetted subject matter experts. We handle complex research, financial modeling, deep data telemetry processing, and advanced business intelligence under strict enterprise SLAs.',
+    metrics: ['Advanced Data Analysis', 'Domain Expert Teams', 'SOC-2 Compliance'],
+    colSpan: 'svc-card--span-6',
+    glowClass: 'svc-glow--secondary',
   },
 ]
 
 export default function Services() {
   return (
     <div className="services-page">
+      {/* Background beams on entire services section */}
+      <BackgroundBeams className="services-beams-bg" />
+
       {/* Ambient bg */}
       <div className="services-bg" aria-hidden="true">
         <div className="services-bg-blob services-bg-blob--tl" />
@@ -83,92 +110,45 @@ export default function Services() {
       {/* Services Bento Grid */}
       <section className="services-bento container">
         <div className="services-grid">
-          {/* AI Agents – large */}
-          <div className="svc-card svc-card--large glass-panel" data-reveal data-delay="1">
-            <div className="svc-glow" />
-            <div className="svc-top">
-              <div className="svc-icon">
-                <span className="material-symbols-outlined svc-icon-sym">smart_toy</span>
+          {services.map((svc, i) => (
+            <CardHoverEffect
+              key={svc.id}
+              className={`svc-card ${svc.colSpan} glass-panel`}
+              data-reveal
+              data-delay={String((i % 4) + 1)}
+            >
+              <div className={`svc-glow ${svc.glowClass || ''}`} />
+              <div className="svc-top">
+                <div className="svc-icon-row">
+                  <div className="svc-icon">
+                    <span className="material-symbols-outlined svc-icon-sym">{svc.icon}</span>
+                  </div>
+                  <span className="svc-tag text-label-sm">{svc.tag}</span>
+                </div>
+                <h3 className="text-headline-md svc-title">{svc.title}</h3>
+                <p className="text-body-md svc-desc">{svc.desc}</p>
               </div>
-              <h3 className="text-headline-md svc-title">AI Agents</h3>
-              <p className="text-body-md svc-desc">
-                Deploy autonomous workflows that learn and adapt. Our AI agents handle complex,
-                multi-step processes, freeing your team to focus on strategic initiatives.
-              </p>
-            </div>
-            <a href="#contact" className="svc-link text-label-md" onClick={(e) => { e.preventDefault(); document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }) }}>
-              Explore AI Solutions
-              <span className="material-symbols-outlined svc-link-icon">arrow_forward</span>
-            </a>
-          </div>
 
-          {/* Data Analytics – small */}
-          <div className="svc-card svc-card--small glass-panel" data-reveal data-delay="2">
-            <div className="svc-glow svc-glow--secondary" />
-            <div className="svc-icon">
-              <span className="material-symbols-outlined svc-icon-sym">insights</span>
-            </div>
-            <h3 className="text-headline-md svc-title">Data Analytics</h3>
-            <p className="text-body-md svc-desc">
-              Transform raw data into actionable intelligence. Gain real-time visibility into
-              operations and predictive insights for growth.
-            </p>
-          </div>
-
-          {/* Cloud Consulting – small */}
-          <div className="svc-card svc-card--small glass-panel" data-reveal data-delay="3">
-            <div className="svc-icon">
-              <span className="material-symbols-outlined svc-icon-sym">cloud</span>
-            </div>
-            <h3 className="text-headline-md svc-title">Cloud Consulting</h3>
-            <p className="text-body-md svc-desc">
-              Build resilient, scalable infrastructure. We design cloud architectures optimized
-              for performance, security, and cost-efficiency.
-            </p>
-          </div>
-
-          {/* Web Dev – small */}
-          <div className="svc-card svc-card--small glass-panel" data-reveal data-delay="4">
-            <div className="svc-icon">
-              <span className="material-symbols-outlined svc-icon-sym">code</span>
-            </div>
-            <h3 className="text-headline-md svc-title">Web Development</h3>
-            <p className="text-body-md svc-desc">
-              Engineer enterprise-grade web applications. We utilize modern frameworks to deliver
-              high-performance, secure digital experiences.
-            </p>
-          </div>
-
-          {/* App Dev – small */}
-          <div className="svc-card svc-card--small glass-panel" data-reveal data-delay="5">
-            <div className="svc-icon">
-              <span className="material-symbols-outlined svc-icon-sym">ad_units</span>
-            </div>
-            <h3 className="text-headline-md svc-title">App Development</h3>
-            <p className="text-body-md svc-desc">
-              Craft intuitive native and cross-platform mobile experiences that drive engagement
-              and seamlessly integrate with your ecosystem.
-            </p>
-          </div>
-
-          {/* Email Marketing – wide */}
-          <div className="svc-card svc-card--wide glass-panel" data-reveal data-delay="6">
-            <div className="svc-wide-left">
-              <div className="svc-icon svc-icon--lg">
-                <span className="material-symbols-outlined svc-icon-sym svc-icon-sym--lg">mark_email_read</span>
+              <div className="svc-bottom">
+                <div className="svc-metrics-pills">
+                  {svc.metrics.map(m => (
+                    <span key={m} className="svc-metric-pill text-label-sm">{m}</span>
+                  ))}
+                </div>
+                <a
+                  href="#contact"
+                  className="svc-link text-label-md"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })
+                  }}
+                >
+                  Get started
+                  <span className="material-symbols-outlined svc-link-icon">arrow_forward</span>
+                </a>
               </div>
-              <div>
-                <h3 className="text-headline-md svc-title">Email Marketing</h3>
-                <p className="text-body-md svc-desc">
-                  Drive engagement with high-conversion automation sequences. We design targeted,
-                  data-driven campaigns that nurture leads and maximize customer lifetime value.
-                </p>
-              </div>
-            </div>
-            <a href="#contact" className="svc-case-btn text-label-md" onClick={(e) => { e.preventDefault(); document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }) }}>
-              View Case Studies
-            </a>
-          </div>
+            </CardHoverEffect>
+          ))}
         </div>
       </section>
     </div>

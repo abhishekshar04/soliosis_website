@@ -1,11 +1,17 @@
 import { useState } from 'react'
+import { WavyBackground } from '../components/aceternity/WavyBackground'
 import './Contact.css'
+
 
 const projectOptions = [
   { value: '', label: 'Select an area of focus...', disabled: true },
-  { value: 'cloud', label: 'Cloud Migration & Architecture' },
-  { value: 'ai', label: 'AI / Machine Learning Integration' },
-  { value: 'cyber', label: 'Zero-Trust Cybersecurity' },
+  { value: 'business-ai-integration', label: 'Business and AI Integration' },
+  { value: 'ai-chatbots', label: 'AI Chatbots' },
+  { value: 'seo', label: 'SEO' },
+  { value: 'website', label: 'Website' },
+  { value: 'email-marketing', label: 'Email Marketing' },
+  { value: 'it-consulting', label: 'IT Consulting' },
+  { value: 'kpo', label: 'KPO' },
   { value: 'other', label: 'Other Technical Inquiry' },
 ]
 
@@ -23,7 +29,14 @@ export default function Contact() {
   }
 
   return (
-    <div className="contact-page">
+    <WavyBackground
+      containerClassName="contact-page"
+      className=""
+      colors={['rgba(124,58,237,0.15)', 'rgba(208,188,255,0.08)', 'rgba(76,29,149,0.12)']}
+      waveOpacity={0.8}
+      blur={30}
+      speed="slow"
+    >
       {/* Ambient glows */}
       <div className="contact-glow contact-glow--tr" aria-hidden="true" />
       <div className="contact-glow contact-glow--bl" aria-hidden="true" />
@@ -141,7 +154,17 @@ export default function Contact() {
                 </div>
                 <div>
                   <h4 className="text-label-md detail-label">Encrypted Direct Line</h4>
-                  <p className="text-body-md detail-value">+1 (800) 555-LOGIC</p>
+                  <p className="text-body-md detail-value">+1 (800) 555-SOLISIO</p>
+                </div>
+              </div>
+
+              <div className="detail-item">
+                <div className="detail-icon-wrap">
+                  <span className="material-symbols-outlined detail-icon">alternate_email</span>
+                </div>
+                <div>
+                  <h4 className="text-label-md detail-label">Enterprise Inquiries</h4>
+                  <p className="text-body-md detail-value">contact@solisio.com</p>
                 </div>
               </div>
 
@@ -188,6 +211,6 @@ export default function Contact() {
           </div>
         </div>
       </div>
-    </div>
+    </WavyBackground>
   )
 }

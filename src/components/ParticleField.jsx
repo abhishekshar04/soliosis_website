@@ -26,21 +26,29 @@ export default function ParticleField({ count = 55 }) {
       hue: Math.floor(Math.random() * 60) + 220,
     }))
 
-    let raf
+    let raf = null
+    let isRunning = false
+    const MAX_DIST = 110
+    const MAX_DIST_SQ = MAX_DIST * MAX_DIST
+
     const draw = () => {
+      if (!isRunning) return
       ctx.clearRect(0, 0, width, height)
 
-      // Draw connection lines between nearby particles
+      // Fast connection lines: check squared distance first (no Math.sqrt for 95% of pairs)
       for (let i = 0; i < particles.length; i++) {
+        const pi = particles[i]
         for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x
-          const dy = particles[i].y - particles[j].y
-          const dist = Math.sqrt(dx * dx + dy * dy)
-          if (dist < 120) {
+          const pj = particles[j]
+          const dx = pi.x - pj.x
+          const dy = pi.y - pj.y
+          const distSq = dx * dx + dy * dy
+          if (distSq < MAX_DIST_SQ) {
+            const dist = Math.sqrt(distSq)
             ctx.beginPath()
-            ctx.moveTo(particles[i].x, particles[i].y)
-            ctx.lineTo(particles[j].x, particles[j].y)
-            ctx.strokeStyle = `rgba(208,188,255,${0.06 * (1 - dist / 120)})`
+            ctx.moveTo(pi.x, pi.y)
+            ctx.lineTo(pj.x, pj.y)
+            ctx.strokeStyle = `rgba(208,188,255,${0.05 * (1 - dist / MAX_DIST)})`
             ctx.lineWidth = 0.5
             ctx.stroke()
           }
@@ -48,7 +56,8 @@ export default function ParticleField({ count = 55 }) {
       }
 
       // Draw each particle
-      particles.forEach((p) => {
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i]
         p.x += p.vx
         p.y += p.vy
 
@@ -60,26 +69,56 @@ export default function ParticleField({ count = 55 }) {
 
         // Breathe alpha
         p.alpha += p.alphaSpeed * p.alphaDir
-        if (p.alpha >= 0.6 || p.alpha <= 0.05) p.alphaDir *= -1
+        if (p.alpha >= 0.55 || p.alpha <= 0.05) p.alphaDir *= -1
 
         ctx.beginPath()
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2)
-        ctx.fillStyle = `hsla(${p.hue}, 100%, 80%, ${p.alpha})`
+        ctx.fillStyle = `hsla(${p.hue}, 90%, 80%, ${p.alpha})`
         ctx.fill()
-      })
+      }
 
       raf = requestAnimationFrame(draw)
     }
-    draw()
 
-    const onResize = () => {
-      width = canvas.width = window.innerWidth
-      height = canvas.height = window.innerHeight
+    const start = () => {
+      if (!isRunning && !document.hidden) {
+        isRunning = true
+        raf = requestAnimationFrame(draw)
+      }
     }
-    window.addEventListener('resize', onResize)
+
+    const stop = () => {
+      if (isRunning) {
+        isRunning = false
+        if (raf) {
+          cancelAnimationFrame(raf)
+          raf = null
+        }
+      }
+    }
+
+    start()
+
+    const onVisibilityChange = () => {
+      if (document.hidden) stop()
+      else start()
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange)
+
+    let resizeTimer = null
+    const onResize = () => {
+      clearTimeout(resizeTimer)
+      resizeTimer = setTimeout(() => {
+        width = canvas.width = window.innerWidth
+        height = canvas.height = window.innerHeight
+      }, 100)
+    }
+    window.addEventListener('resize', onResize, { passive: true })
 
     return () => {
-      cancelAnimationFrame(raf)
+      stop()
+      clearTimeout(resizeTimer)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
       window.removeEventListener('resize', onResize)
     }
   }, [count])

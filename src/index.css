@@ -1,5 +1,10 @@
+/* Tailwind CSS – scoped for Aceternity UI components */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* ============================================
-   Lumina Logic – Global Design System
+   Solisio Solutions – Global Design System
    ============================================ */
 
 /* Custom Properties (Design Tokens) */
@@ -151,6 +156,7 @@ body {
   padding: 1px;
   background: linear-gradient(135deg, rgba(208,188,255,0.4) 0%, rgba(208,188,255,0) 50%, rgba(208,188,255,0.1) 100%);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;
