@@ -29,7 +29,11 @@ export function InfiniteMovingCards({ items, direction = 'left', speed = 'slow',
     <div
       ref={containerRef}
       className={cn(
-        'relative z-20 max-w-7xl overflow-hidden [mask-image:linear-gradient(to_right,transparent,white_20%,white_80%,transparent)]',
+        // A 20% edge fade eats most of a phone-width card, so the mask is
+        // tightened to 8% below md and restored at desktop widths.
+        'relative z-20 max-w-7xl overflow-hidden',
+        '[mask-image:linear-gradient(to_right,transparent,white_8%,white_92%,transparent)]',
+        'md:[mask-image:linear-gradient(to_right,transparent,white_20%,white_80%,transparent)]',
         className,
       )}
     >
@@ -48,7 +52,9 @@ export function InfiniteMovingCards({ items, direction = 'left', speed = 'slow',
         {items.map((item, idx) => (
           <li
             key={idx}
-            className="relative w-[350px] max-w-full shrink-0 rounded-2xl border px-8 py-6 md:w-[450px]"
+            /* w-[85vw] keeps the card inside the smallest phone screens while
+               still hinting at the next card; caps at the original desktop size. */
+            className="relative w-[85vw] max-w-[350px] shrink-0 rounded-2xl border px-6 py-5 sm:px-8 sm:py-6 md:w-[450px] md:max-w-[450px]"
             style={{
               background: 'linear-gradient(180deg, rgba(33,30,39,0.8), rgba(21,18,27,0.8))',
               borderColor: 'rgba(208,188,255,0.12)',

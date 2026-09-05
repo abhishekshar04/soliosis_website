@@ -1,6 +1,8 @@
-import { useRef, useEffect, useState } from 'react'
+import { useRef, useEffect } from 'react'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import { useMediaQuery } from '../hooks/useMediaQuery'
+import './HeroGlobe.css'
 
 /* ─── Geographic Math ──────────────────────────────────────────────────────── */
 
@@ -84,6 +86,7 @@ const AtmosphereShader = {
 
 export default function HeroGlobe() {
   const mountRef = useRef(null)
+  const isCoarsePointer = useMediaQuery('(pointer: coarse)')
 
   useEffect(() => {
     const mount = mountRef.current
@@ -96,13 +99,19 @@ export default function HeroGlobe() {
     const scene = new THREE.Scene()
     const camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 1000)
 
+    // Read once at mount: the renderer is built here and never rebuilt,
+    // so this deliberately does not track later media-query changes.
+    const isTouch = window.matchMedia?.('(pointer: coarse)').matches ?? false
+
     const renderer = new THREE.WebGLRenderer({
-      antialias: true,
+      // Antialiasing is expensive on mobile GPUs and barely visible at
+      // phone pixel densities, where the DPR downsample already smooths edges.
+      antialias: !isTouch,
       alpha: true,
       powerPreference: 'high-performance',
     })
     renderer.setSize(width, height)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5))
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, isTouch ? 1.25 : 1.5))
     renderer.setClearColor(0x000000, 0)
     renderer.domElement.style.display = 'block'
     renderer.domElement.style.width = '100%'
@@ -124,10 +133,23 @@ export default function HeroGlobe() {
     controls.minPolarAngle = Math.PI * 0.18
     controls.maxPolarAngle = Math.PI * 0.82
 
+    /* ── Let the page scroll through the globe on touch ─────────────────────
+       OrbitControls sets `touch-action: none` on the canvas, which makes the
+       globe swallow every vertical swipe — on a phone the hero becomes a dead
+       zone the visitor cannot scroll past. Overriding to `pan-y` hands
+       vertical gestures back to the browser (native page scroll) while
+       horizontal drags still spin the Earth. Must run AFTER the constructor. */
+    renderer.domElement.style.touchAction = 'pan-y'
+
     renderer.domElement.addEventListener('pointerdown', () => {
       renderer.domElement.style.cursor = 'grabbing'
     })
     renderer.domElement.addEventListener('pointerup', () => {
+      renderer.domElement.style.cursor = 'grab'
+    })
+    // A vertical swipe becomes a page scroll and the browser cancels the
+    // pointer stream — reset the cursor so it does not stay "grabbing".
+    renderer.domElement.addEventListener('pointercancel', () => {
       renderer.domElement.style.cursor = 'grab'
     })
 
@@ -461,43 +483,20 @@ export default function HeroGlobe() {
       />
 
       {/* Floating Info Overlay Pill */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: '8px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          padding: '8px 18px',
-          borderRadius: '9999px',
-          background: 'rgba(18, 20, 32, 0.78)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-          border: '1px solid rgba(208, 188, 255, 0.2)',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
-          color: '#e2e8f0',
-          fontSize: '12px',
-          letterSpacing: '0.03em',
-          pointerEvents: 'none',
-          whiteSpace: 'nowrap',
-          zIndex: 10,
-        }}
-      >
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#c084fc', boxShadow: '0 0 8px #c084fc' }} />
+      <div className="globe-legend">
+        <span className="globe-legend-item">
+          <span className="globe-legend-dot globe-legend-dot--us" />
           <span>US Enterprise Hubs</span>
         </span>
-        <span style={{ color: 'rgba(255, 255, 255, 0.25)' }}>•</span>
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#f59e0b', boxShadow: '0 0 8px #f59e0b' }} />
+        <span className="globe-legend-sep">•</span>
+        <span className="globe-legend-item">
+          <span className="globe-legend-dot globe-legend-dot--in" />
           <span>India R&amp;D Centers</span>
         </span>
-        <span style={{ color: 'rgba(255, 255, 255, 0.25)' }}>•</span>
-        <span style={{ color: '#94a3b8', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+        <span className="globe-legend-sep">•</span>
+        <span className="globe-legend-item globe-legend-hint">
           <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>drag_pan</span>
-          Drag to spin
+          {isCoarsePointer ? 'Swipe to spin' : 'Drag to spin'}
         </span>
       </div>
     </div>

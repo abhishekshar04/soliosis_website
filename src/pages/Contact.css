@@ -46,9 +46,29 @@
   letter-spacing: -0.01em;
   color: var(--color-on-surface);
   margin-bottom: 8px;
+  /* The looping typewriter clears to empty between cycles; reserving one
+     line here stops the subtitle below from jumping up during that gap. */
+  min-height: 40px;
 }
 @media (min-width: 768px) {
-  .contact-title { font-size: 48px; line-height: 56px; }
+  .contact-title {
+    font-size: 48px;
+    line-height: 56px;
+    min-height: 56px;
+  }
+}
+
+/* Matches .hero-cursor's treatment (Home.css) for the same blinking caret,
+   kept as its own class since this page owns its typewriter instance. */
+.contact-cursor {
+  background: var(--color-primary) !important;
+  opacity: 0.8;
+}
+
+/* All-caps text reads as cramped without a touch of extra tracking */
+.contact-title-emphasis {
+  color: var(--color-primary);
+  letter-spacing: 0.03em;
 }
 .contact-subtitle {
   color: var(--color-on-surface-variant);
@@ -56,21 +76,18 @@
   margin: 0 auto;
 }
 
-/* Grid */
+/* Grid — a single centered column now that the sidebar has been removed;
+   the form was designed for a 7fr slot, so cap its own width rather than
+   let it stretch across the full container on wide desktops. */
 .contact-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 24px;
-}
-@media (min-width: 1024px) {
-  .contact-grid {
-    grid-template-columns: 7fr 5fr;
-    align-items: stretch;
-  }
+  display: flex;
+  justify-content: center;
 }
 
 /* Form wrap */
 .contact-form-wrap {
+  width: 100%;
+  max-width: 680px;
   border-radius: 16px;
   padding: 32px;
   position: relative;
@@ -180,108 +197,33 @@
   filter: drop-shadow(0 0 16px rgba(52, 211, 153, 0.4));
 }
 
-/* Sidebar */
-.contact-sidebar { display: flex; flex-direction: column; gap: 24px; }
+/* ============================================
+   Contact – Mobile Adaptations
+   ============================================ */
+@media (max-width: 767px) {
+  .contact-container {
+    padding-top: 36px;
+    padding-bottom: 44px;
+  }
 
-/* Details card */
-.contact-details {
-  border-radius: 16px;
-  padding: 28px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-.contact-details-title {
-  color: var(--color-on-surface);
-  font-size: 24px;
-  line-height: 32px;
-  margin-bottom: 4px;
-}
+  .contact-header { margin-bottom: 28px; }
 
-.detail-item { display: flex; align-items: flex-start; gap: 16px; }
-.detail-icon-wrap {
-  background: rgba(160, 120, 255, 0.15);
-  padding: 8px;
-  border-radius: var(--radius-md);
-  color: var(--color-primary);
-  flex-shrink: 0;
-}
-.detail-icon { font-size: 24px; }
-.detail-label { color: var(--color-on-surface); margin-bottom: 4px; }
-.detail-value { color: var(--color-on-surface-variant); }
+  .contact-form-wrap {
+    padding: 22px 18px;
+    border-radius: 14px;
+  }
 
-.status-bar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(73, 68, 84, 0.3);
-}
-.status-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #34d399;
-  box-shadow: 0 0 10px rgba(52, 211, 153, 0.6);
-  flex-shrink: 0;
-}
-.status-text {
-  color: var(--color-on-surface-variant);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
+  .contact-form { gap: 16px; }
 
-/* Map */
-.contact-map {
-  border-radius: 16px;
-  height: 210px;
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-surface-container);
+  /* 16px is the threshold below which iOS Safari zooms the page on focus */
+  .form-input {
+    font-size: 16px;
+    padding: 13px 14px;
+  }
+  .form-select { padding-right: 40px; }
+
+  .form-textarea { min-height: 130px; }
+
+  .contact-success { padding: 32px 0; }
+  .success-icon { font-size: 52px; }
 }
-.map-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(21, 18, 27, 0.7), transparent);
-  z-index: 1;
-}
-.map-grid {
-  position: absolute;
-  inset: 0;
-}
-.map-h-line, .map-v-line {
-  position: absolute;
-  background: rgba(208, 188, 255, 0.06);
-}
-.map-h-line { left: 0; right: 0; height: 1px; }
-.map-v-line { top: 0; bottom: 0; width: 1px; }
-.map-node {
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--color-primary);
-  box-shadow: 0 0 12px rgba(208, 188, 255, 0.6);
-  transform: translate(-50%, -50%);
-}
-.map-node::after {
-  content: '';
-  position: absolute;
-  inset: -4px;
-  border-radius: 50%;
-  border: 1px solid rgba(208, 188, 255, 0.3);
-}
-.map-footer {
-  position: absolute;
-  bottom: 16px;
-  left: 16px;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.map-loc-icon { color: var(--color-primary); font-size: 16px; }
-.map-label { color: var(--color-primary); letter-spacing: 0.15em; text-transform: uppercase; }

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import Home from '../pages/Home'
+import Home, { ClientImpact } from '../pages/Home'
 import Services from '../pages/Services'
 import Stats from '../pages/Stats'
 import About from '../pages/About'
@@ -7,6 +7,7 @@ import Contact from '../pages/Contact'
 import CustomCursor from './CustomCursor'
 import ParticleField from './ParticleField'
 import { useScrollReveal } from '../hooks/useScrollReveal'
+import { useIsTouchDevice, useIsMobile } from '../hooks/useMediaQuery'
 import './Layout.css'
 
 const navLinks = [
@@ -20,7 +21,48 @@ export default function Layout() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [activeSection, setActiveSection] = useState('home')
+  const isTouch = useIsTouchDevice()
+  const isMobile = useIsMobile()
   useScrollReveal('[data-reveal]')
+
+  // The drawer only exists below the desktop breakpoint. Deriving this
+  // rather than syncing it in an effect means rotating the phone or
+  // resizing the window can never leave a stuck-open menu or scroll lock.
+  const drawerOpen = menuOpen && isMobile
+
+  // Lock the page behind the open drawer, and restore the exact scroll
+  // position afterwards (position:fixed otherwise jumps to the top).
+  useEffect(() => {
+    if (!drawerOpen) return
+
+    const scrollY = window.scrollY
+    const { body } = document
+    const prev = {
+      position: body.style.position,
+      top: body.style.top,
+      width: body.style.width,
+      overflow: body.style.overflow,
+    }
+
+    body.style.position = 'fixed'
+    body.style.top = `-${scrollY}px`
+    body.style.width = '100%'
+    body.style.overflow = 'hidden'
+
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') setMenuOpen(false)
+    }
+    document.addEventListener('keydown', onKeyDown)
+
+    return () => {
+      body.style.position = prev.position
+      body.style.top = prev.top
+      body.style.width = prev.width
+      body.style.overflow = prev.overflow
+      window.scrollTo(0, scrollY)
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [drawerOpen])
 
   useEffect(() => {
     let ticking = false
@@ -69,20 +111,31 @@ export default function Layout() {
   const handleNavClick = (e, hash) => {
     e.preventDefault()
     const id = hash.replace('#', '')
-    const el = document.getElementById(id)
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' })
+
+    const scrollToSection = () => {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
     }
-    setMenuOpen(false)
+
+    if (drawerOpen) {
+      // The drawer holds a position:fixed scroll lock. Close it first and
+      // scroll on the next frame, once the lock has been released — otherwise
+      // the unlock restores the old offset and cancels the jump.
+      setMenuOpen(false)
+      requestAnimationFrame(() => requestAnimationFrame(scrollToSection))
+    } else {
+      scrollToSection()
+    }
   }
 
   return (
     <div className="site-wrapper">
-      {/* Custom cursor */}
-      <CustomCursor />
+      {/* Custom cursor – pointer devices only; on touch there is no cursor
+          to replace and the RAF loop would just burn battery. */}
+      {!isTouch && <CustomCursor />}
 
-      {/* Floating particle field */}
-      <ParticleField count={55} />
+      {/* Floating particle field – the link-drawing pass is O(n²), so keep
+          the count well down on phone GPUs. */}
+      <ParticleField count={isMobile ? 22 : 55} />
 
       {/* Ambient background glows */}
       <div className="ambient-bg" aria-hidden="true">
@@ -135,16 +188,17 @@ export default function Layout() {
           <button
             className="mobile-menu-toggle"
             onClick={() => setMenuOpen(v => !v)}
-            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-            aria-expanded={menuOpen}
+            aria-label={drawerOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={drawerOpen}
+            aria-controls="mobile-nav"
           >
-            <span className="material-symbols-outlined">{menuOpen ? 'close' : 'menu'}</span>
+            <span className="material-symbols-outlined">{drawerOpen ? 'close' : 'menu'}</span>
           </button>
         </div>
 
         {/* Mobile drawer */}
-        {menuOpen && (
-          <div className="mobile-nav glass-panel" role="navigation" aria-label="Mobile navigation">
+        {drawerOpen && (
+          <div className="mobile-nav glass-panel" id="mobile-nav" role="navigation" aria-label="Mobile navigation">
             {navLinks.map(({ to, label }) => (
               <a
                 key={to}
@@ -175,6 +229,7 @@ export default function Layout() {
         <section id="services">
           <Services />
         </section>
+        <ClientImpact />
         <section id="stats">
           <Stats />
         </section>

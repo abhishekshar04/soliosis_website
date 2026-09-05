@@ -119,7 +119,27 @@
   margin-top: 4px;
 }
 
+@media (max-width: 767px) {
+  .stats-section {
+    padding: 44px 0;
+  }
+
+  .stats-header {
+    margin-bottom: 28px;
+  }
+
+  .stats-grid {
+    gap: 16px;
+  }
+
+  .stat-card {
+    padding: 22px 18px;
+    border-radius: 16px;
+  }
+}
+
 @media (max-width: 640px) {
+  /* Single column: the four-digit values need the full width to breathe */
   .stats-grid {
     grid-template-columns: 1fr;
   }

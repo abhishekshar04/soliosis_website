@@ -7,6 +7,11 @@ export default function ParticleField({ count = 55 }) {
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
+
+    // A canvas loop is invisible to the CSS reduced-motion rules, so opt out here.
+    const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    if (reducedMotion) return
+
     const ctx = canvas.getContext('2d')
 
     let width = (canvas.width = window.innerWidth)
@@ -107,6 +112,11 @@ export default function ParticleField({ count = 55 }) {
 
     let resizeTimer = null
     const onResize = () => {
+      // Mobile browsers fire resize every time the URL bar slides in or out.
+      // Only the width matters for the layout, so ignore height-only churn
+      // and let the canvas keep its existing buffer.
+      if (window.innerWidth === width) return
+
       clearTimeout(resizeTimer)
       resizeTimer = setTimeout(() => {
         width = canvas.width = window.innerWidth

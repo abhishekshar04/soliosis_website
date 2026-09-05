@@ -1,7 +1,17 @@
 import { useState } from 'react'
 import { WavyBackground } from '../components/aceternity/WavyBackground'
+import { TypewriterEffect } from '../components/aceternity/TypewriterEffect'
 import './Contact.css'
 
+// Defined once at module scope, like Home.jsx's heroWords — TypewriterEffect
+// resets whenever this array's reference changes, so it must stay stable
+// across renders rather than being written inline in the JSX below.
+const contactHeadlineWords = [
+  { text: 'Just' },
+  { text: 'Take' },
+  { text: 'a' },
+  { text: 'STEP', className: 'contact-title-emphasis' },
+]
 
 const projectOptions = [
   { value: '', label: 'Select an area of focus...', disabled: true },
@@ -44,7 +54,20 @@ export default function Contact() {
       <div className="contact-container container">
         {/* Page header */}
         <div className="contact-header" data-reveal>
-          <h1 className="contact-title">Initiate Consultation</h1>
+          <h1 className="contact-title">
+            {/* The opening quote is static so it's visible before typing
+                even starts. The closing quote is passed as `suffix`, which
+                TypewriterEffect only renders once typing completes — kept
+                separate from the "STEP" word itself so the quote mark
+                stays white instead of inheriting STEP's purple color. */}
+            &ldquo;<TypewriterEffect
+              words={contactHeadlineWords}
+              cursorClassName="contact-cursor"
+              loop
+              loopInterval={7000}
+              suffix="”"
+            />
+          </h1>
           <p className="text-body-lg contact-subtitle">
             Connect with our engineering leads to discuss secure, scalable solutions for your enterprise architecture.
           </p>
@@ -128,86 +151,6 @@ export default function Contact() {
                 </div>
               </form>
             )}
-          </div>
-
-          {/* Sidebar */}
-          <div className="contact-sidebar" data-reveal data-delay="2">
-            {/* Details card */}
-            <div className="contact-details glass-panel">
-              <h3 className="text-headline-md contact-details-title">Command Center</h3>
-
-              <div className="detail-item">
-                <div className="detail-icon-wrap">
-                  <span className="material-symbols-outlined detail-icon">location_on</span>
-                </div>
-                <div>
-                  <h4 className="text-label-md detail-label">Global Headquarters</h4>
-                  <p className="text-body-md detail-value">
-                    100 Innovation Drive, Floor 42<br />Silicon Valley, CA 94025
-                  </p>
-                </div>
-              </div>
-
-              <div className="detail-item">
-                <div className="detail-icon-wrap">
-                  <span className="material-symbols-outlined detail-icon">encrypted</span>
-                </div>
-                <div>
-                  <h4 className="text-label-md detail-label">Encrypted Direct Line</h4>
-                  <p className="text-body-md detail-value">+1 (800) 555-SOLISIO</p>
-                </div>
-              </div>
-
-              <div className="detail-item">
-                <div className="detail-icon-wrap">
-                  <span className="material-symbols-outlined detail-icon">alternate_email</span>
-                </div>
-                <div>
-                  <h4 className="text-label-md detail-label">Enterprise Inquiries</h4>
-                  <p className="text-body-md detail-value">contact@solisio.com</p>
-                </div>
-              </div>
-
-              <div className="status-bar">
-                <div className="status-dot" />
-                <span className="text-label-sm status-text">Systems Nominal • Support Active 24/7</span>
-              </div>
-            </div>
-
-            {/* Map visualization */}
-            <div className="contact-map glass-panel">
-              <div className="map-overlay" />
-              <div
-                className="map-grid"
-                aria-label="Global network visualization"
-              >
-                {/* Decorative grid lines */}
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="map-h-line" style={{ top: `${(i + 1) * 14}%` }} />
-                ))}
-                {Array.from({ length: 8 }).map((_, i) => (
-                  <div key={i} className="map-v-line" style={{ left: `${(i + 1) * 11}%` }} />
-                ))}
-                {/* Nodes */}
-                {[
-                  { top: '25%', left: '20%' },
-                  { top: '55%', left: '40%' },
-                  { top: '35%', left: '65%' },
-                  { top: '70%', left: '75%' },
-                  { top: '20%', left: '82%' },
-                ].map((pos, i) => (
-                  <div
-                    key={i}
-                    className="map-node"
-                    style={{ top: pos.top, left: pos.left }}
-                  />
-                ))}
-              </div>
-              <div className="map-footer">
-                <span className="material-symbols-outlined map-loc-icon">my_location</span>
-                <span className="text-label-sm map-label">NODE_SV_42</span>
-              </div>
-            </div>
           </div>
         </div>
       </div>

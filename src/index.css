@@ -57,12 +57,22 @@
   --spacing-margin-desktop: 64px;
   --container-max: 1280px;
 
+  /* Header height – kept in sync with .header-inner so anchor
+     scroll offsets stay correct when the bar compacts on mobile */
+  --header-height: 72px;
+
+  /* Minimum comfortable touch target (WCAG 2.5.5 / iOS HIG) */
+  --tap-target: 44px;
+
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-full: 9999px;
 
-  --font-family: 'Plus Jakarta Sans', sans-serif;
+  /* Body/UI text. Oswald (below) is reserved for headings — a condensed
+     display face reads as cramped and shouty at paragraph sizes. */
+  --font-family: 'Roboto Condensed', sans-serif;
+  --font-family-display: 'Oswald', sans-serif;
 }
 
 /* Reset & Base */
@@ -74,6 +84,11 @@
 
 html {
   scroll-behavior: smooth;
+  /* Belt-and-braces with body: iOS ignores overflow-x on body alone */
+  overflow-x: hidden;
+  /* Stop iOS/Android from re-flowing type on orientation change */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
@@ -83,7 +98,28 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
+  min-height: 100dvh; /* avoids the mobile URL-bar height jump */
   overflow-x: hidden;
+  /* Grey flash on tap is handled by our own :active styles */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Never let a stray wide child create a horizontal scrollbar on phones */
+img, svg, video, canvas {
+  max-width: 100%;
+}
+
+/* Headings and brand wordmarks get the display face; body copy, buttons,
+   form fields, and badges keep the base font — Oswald reads as shouty at
+   small UI sizes, so it's scoped to large/title-weight text only. */
+h1, h2, h3, h4, h5, h6,
+.text-headline-xl,
+.text-headline-lg,
+.text-headline-lg-mobile,
+.text-headline-md,
+.brand-name,
+.footer-logo {
+  font-family: var(--font-family-display);
 }
 
 ::selection {
@@ -91,33 +127,35 @@ body {
   color: var(--color-on-primary-container);
 }
 
-/* Typography Scale */
+/* Typography Scale
+   Sizes are fluid: the clamp() maximum reproduces the original desktop value
+   exactly, so only viewports narrower than ~768px are affected. */
 .text-headline-xl {
-  font-size: 60px;
-  line-height: 72px;
+  font-size: clamp(36px, 7.5vw, 60px);
+  line-height: 1.2;
   letter-spacing: -0.02em;
   font-weight: 800;
 }
 .text-headline-lg {
-  font-size: 48px;
-  line-height: 56px;
+  font-size: clamp(30px, 6vw, 48px);
+  line-height: 1.18;
   letter-spacing: -0.01em;
   font-weight: 700;
 }
 .text-headline-lg-mobile {
-  font-size: 32px;
-  line-height: 40px;
+  font-size: clamp(26px, 5.2vw, 32px);
+  line-height: 1.25;
   letter-spacing: -0.01em;
   font-weight: 700;
 }
 .text-headline-md {
-  font-size: 30px;
-  line-height: 38px;
+  font-size: clamp(22px, 4.2vw, 30px);
+  line-height: 1.27;
   font-weight: 600;
 }
 .text-body-lg {
-  font-size: 18px;
-  line-height: 28px;
+  font-size: clamp(16px, 1.6vw, 18px);
+  line-height: 1.6;
   font-weight: 400;
 }
 .text-body-md {
@@ -335,5 +373,98 @@ body {
    ============================================ */
 @keyframes border-spin {
   to { --angle: 360deg; }
+}
+
+/* ============================================
+   Mobile & Touch Foundations
+   ============================================ */
+
+/* Long unbroken strings (emails, URLs, tokens) must not push the
+   layout wider than the screen. */
+h1, h2, h3, h4, p, span, a, li, blockquote {
+  overflow-wrap: break-word;
+}
+
+/* Comfortable hit areas on touch devices. Applied only where a pointer
+   is coarse so desktop density is untouched. */
+@media (pointer: coarse) {
+  /* Controls only — inline prose links keep flowing with the text so
+     they still wrap mid-sentence. */
+  button,
+  [role="button"],
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  .cta-btn,
+  .submit-btn,
+  .btn-primary-hero-link,
+  .btn-ghost-hero,
+  .svc-link,
+  .mobile-nav-link,
+  .back-to-top-btn,
+  .mobile-menu-toggle {
+    /* Never smaller than a fingertip */
+    min-height: var(--tap-target);
+  }
+
+  .svc-link {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+  }
+
+  .mobile-nav-link {
+    display: flex;
+    align-items: center;
+  }
+
+  /* Hover transforms just stick after a tap on touch screens, leaving cards
+     lifted until you tap elsewhere.
+     The class is doubled to reach specificity (0,3,0): this file is bundled
+     before the page stylesheets, so a plain `.svc-card:hover` here would
+     lose the tie-break to the identical selector in Services.css. */
+  .glass-panel.glass-panel:hover,
+  .svc-card.svc-card:hover,
+  .team-card.team-card:hover,
+  .stat-card.stat-card:hover,
+  .cta-btn.cta-btn:hover,
+  .submit-btn.submit-btn:hover,
+  .footer-link.footer-link:hover,
+  .svc-link.svc-link:hover,
+  .back-to-top-btn.back-to-top-btn:hover {
+    transform: none;
+  }
+}
+
+/* Tighter side margins on the narrowest handsets so content
+   keeps its breathing room. */
+@media (max-width: 380px) {
+  .container {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+/* Respect the OS "reduce motion" setting: keep the site readable and
+   fully functional, drop the decorative movement. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Reveal-on-scroll must not leave content invisible when its
+     transition is neutralised. */
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
 }
 

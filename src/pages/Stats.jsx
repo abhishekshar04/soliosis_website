@@ -3,10 +3,10 @@ import { BackgroundBeams } from '../components/aceternity/BackgroundBeams'
 import './Stats.css'
 
 const stats = [
-  { value: 500, suffix: '+', label: 'Projects Delivered', desc: 'Enterprise-grade solutions shipped globally', badge: 'Global Scale' },
-  { value: 99.9, suffix: '%', label: 'Uptime SLA', desc: 'Guaranteed reliability across all deployments', decimalPlaces: 1, badge: 'Zero Downtime' },
-  { value: 84, suffix: '%', label: 'Avg. Latency Reduction', desc: 'Through AI-optimized data pipeline engineering', badge: 'High Velocity' },
-  { value: 200, suffix: 'M+', label: 'Data Points Processed Daily', desc: 'Across petabyte-scale client infrastructures', badge: 'Real-time Ops' },
+  { value: 35, suffix: '+', label: 'Projects Delivered', desc: 'Shipped for early-stage startups and growing SMBs', badge: 'Client Trusted' },
+  { value: 99.5, suffix: '%', label: 'Uptime SLA', desc: 'Reliable infrastructure behind every deployment', decimalPlaces: 1, badge: 'Dependable Infra' },
+  { value: 42, suffix: '%', label: 'Avg. Latency Reduction', desc: 'Through optimized pipelines and smart caching', badge: 'Performance Gains' },
+  { value: 1.2, suffix: 'M+', label: 'Data Points Processed Daily', desc: 'Across active client dashboards and integrations', decimalPlaces: 1, badge: 'Growing Scale' },
 ]
 
 export default function Stats() {
@@ -16,7 +16,7 @@ export default function Stats() {
       <div className="stats-inner container">
         <div className="stats-header" data-reveal>
           <span className="stats-eyebrow text-label-md">Measured Impact</span>
-          <h2 className="stats-title text-headline-md">Numbers that define us</h2>
+          <h2 className="stats-title text-headline-lg">Our Digital Impact</h2>
         </div>
         <div className="stats-grid">
           {stats.map((stat, i) => (

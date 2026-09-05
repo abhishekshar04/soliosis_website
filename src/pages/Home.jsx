@@ -4,19 +4,37 @@ import { SparklesCore } from '../components/aceternity/SparklesCore'
 import { TypewriterEffect } from '../components/aceternity/TypewriterEffect'
 import { MovingBorder } from '../components/aceternity/MovingBorder'
 import { InfiniteMovingCards } from '../components/aceternity/InfiniteMovingCards'
+import { useIsMobile } from '../hooks/useMediaQuery'
 import './Home.css'
 
 // Lazy-load Three.js globe to avoid blocking initial render
 const HeroGlobe = lazy(() => import('../components/HeroGlobe'))
 
-const heroWords = [
-  { text: 'Engineering' },
-  { text: 'the' },
-  { text: 'Next', className: 'hero-word-gradient' },
-  { text: 'Era', className: 'hero-word-gradient' },
-  { text: 'of' },
-  { text: 'Digital' },
-  { text: 'Intelligence' },
+// Three headlines the hero rotates through, one at a time, every 6 seconds
+// (see loopInterval on the TypewriterEffect below).
+const heroWordSets = [
+  [
+    { text: 'Architecting' },
+    { text: 'the' },
+    { text: 'Future', className: 'hero-word-gradient' },
+    { text: 'of', className: 'hero-word-gradient' },
+    { text: 'Technology.',className: 'hero-word-gradient' },
+  ],
+  [
+    { text: 'Intelligence' },
+    { text: 'Built' },
+    { text: 'for' },
+    { text: 'the' },
+    { text: 'Real', className: 'hero-word-gradient' },
+    { text: 'World.', className: 'hero-word-gradient' },
+  ],
+  [
+    { text: 'We' },
+    { text: 'Engineer' },
+    { text: 'What' },
+    { text: 'Comes' },
+    { text: 'Next.', className: 'hero-word-gradient' },
+  ],
 ]
 
 const testimonials = [
@@ -47,15 +65,18 @@ const testimonials = [
 ]
 
 export default function Home() {
+  const isMobile = useIsMobile()
+
   return (
     <div className="home-page">
       {/* ── Hero ── */}
       <section className="hero container">
-        {/* Sparkle particles behind headline */}
+        {/* Sparkle particles behind headline – thinned out on phones, where
+            the canvas is small and the GPU budget is shared with the globe. */}
         <div className="hero-sparkles" aria-hidden="true">
           <SparklesCore
             id="hero-sparkles"
-            particleDensity={80}
+            particleDensity={isMobile ? 30 : 80}
             particleColor="#d0bcff"
             minSize={0.3}
             maxSize={1.0}
@@ -63,15 +84,12 @@ export default function Home() {
           />
         </div>
 
-        <div className="hero-badge animate-fade-in-up">
-          <img src="/solisio-icon.png" alt="Solisio" className="hero-badge-emblem" />
-          <span>Solisio Solutions • Chase Your Dreams</span>
-        </div>
-
         <h1 className="hero-headline animate-fade-in-up animate-delay-1">
           <TypewriterEffect
-            words={heroWords}
+            wordSets={heroWordSets}
             cursorClassName="hero-cursor"
+            loop
+            loopInterval={6000}
           />
         </h1>
 
@@ -117,144 +135,38 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* ── Core Expertise Bento ── */}
-      <section className="expertise container">
-        <div className="section-header" data-reveal data-delay="1">
-          <div>
-            <h2 className="text-headline-md section-title">Core Expertise</h2>
-            <p className="text-body-md section-subtitle">
-              Our specialized disciplines integrate seamlessly to form robust, future-proof operational ecosystems.
-            </p>
-          </div>
-          <a
-            href="#services"
-            className="explore-link text-label-md"
-            onClick={(e) => { e.preventDefault(); document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' }) }}
-          >
-            Explore all capabilities
-            <span className="material-symbols-outlined explore-icon">east</span>
-          </a>
-        </div>
-
-        <div className="bento-grid">
-          {/* Cloud – large */}
-          <div className="bento-card bento-card--large glass-panel linear-glow-border" data-reveal data-delay="2">
-            <div className="bento-glow" />
-            <div className="bento-icon">
-              <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>cloud_sync</span>
-            </div>
-            <div className="bento-content bento-content--wide">
-              <h3 className="text-headline-md">Cloud Architecture</h3>
-              <p className="text-body-md bento-desc">
-                Distributed systems engineered for absolute resilience. We architect multi-cloud environments
-                that scale dynamically with your computational demands while maintaining rigorous security postures.
-              </p>
-              <div className="bento-tags">
-                {['AWS', 'Kubernetes', 'Multi-Region', 'Zero-Trust'].map(tag => (
-                  <span key={tag} className="bento-tag text-label-sm">{tag}</span>
-                ))}
-              </div>
-
-              {/* Live Cluster Telemetry Grid */}
-              <div className="cloud-telemetry-grid" aria-label="Global cluster status">
-                <div className="cloud-node">
-                  <div className="node-status">
-                    <span className="node-dot" />
-                    <span className="node-name">us-east-1</span>
-                  </div>
-                  <span className="node-metric">99.99%</span>
-                </div>
-                <div className="cloud-node">
-                  <div className="node-status">
-                    <span className="node-dot" />
-                    <span className="node-name">eu-west-1</span>
-                  </div>
-                  <span className="node-metric">99.98%</span>
-                </div>
-                <div className="cloud-node">
-                  <div className="node-status">
-                    <span className="node-dot" />
-                    <span className="node-name">ap-south-1</span>
-                  </div>
-                  <span className="node-metric">100.0%</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* AI – tall */}
-          <div className="bento-card bento-card--tall glass-panel linear-glow-border" data-reveal data-delay="3">
-            <div className="bento-icon">
-              <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>psychology</span>
-            </div>
-            <div className="bento-content">
-              <h3 className="text-headline-md">AI Integration</h3>
-              <p className="text-body-md bento-desc">
-                Embedding machine intelligence into core workflows. From predictive analytics to autonomous agents,
-                we operationalize AI at scale.
-              </p>
-              <div className="ai-metrics-row">
-                <span className="ai-badge">12ms latency</span>
-                <span className="ai-badge">4.8k req/s</span>
-              </div>
-            </div>
-            <div className="ai-bars" aria-hidden="true">
-              {[33, 67, 50, 100, 80, 40].map((h, i) => (
-                <div key={i} className="ai-bar" style={{ height: `${h}%` }} />
-              ))}
-            </div>
-          </div>
-
-          {/* Data Ops – wide */}
-          <div className="bento-card bento-card--wide glass-panel linear-glow-border" data-reveal data-delay="4">
-            <div className="bento-icon bento-icon--lg">
-              <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1", fontSize: '32px' }}>database</span>
-            </div>
-            <div className="bento-content" style={{ flex: 1 }}>
-              <h3 className="text-headline-md">Data Operations &amp; Pipelines</h3>
-              <p className="text-body-md bento-desc">
-                High-throughput data engineering transforming raw telemetry into structured, actionable intelligence.
-                We build pipelines that process petabytes with sub-second latency.
-              </p>
-            </div>
-            <a
-              href="#services"
-              className="bento-arrow-btn"
-              aria-label="Learn more about Data Operations"
-              onClick={(e) => { e.preventDefault(); document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' }) }}
-            >
-              <span className="material-symbols-outlined">arrow_forward</span>
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Testimonials (Infinite Scroll) ── */}
-      <section className="testimonials container">
-        <div className="text-center" data-reveal>
-          <h2 className="text-headline-md section-title">Client Impact</h2>
-          <p className="text-body-md section-subtitle" style={{ margin: '0 auto', maxWidth: 600 }}>
-            Transformative outcomes realized by organizations operating at the bleeding edge.
-          </p>
-        </div>
-
-        <div className="testimonials-scroller" data-reveal data-delay="1">
-          <InfiniteMovingCards
-            items={testimonials}
-            direction="left"
-            speed="slow"
-            pauseOnHover
-          />
-          <InfiniteMovingCards
-            items={[...testimonials].reverse()}
-            direction="right"
-            speed="slow"
-            pauseOnHover
-            className="mt-4"
-          />
-        </div>
-      </section>
     </div>
+  )
+}
+
+// Rendered separately by Layout, positioned after Services rather than
+// immediately following the hero — kept in this file since it shares
+// Home.css and the testimonials data defined above.
+export function ClientImpact() {
+  return (
+    <section className="testimonials container">
+      <div className="text-center" data-reveal>
+        <h2 className="text-headline-lg section-title">Testimonials</h2>
+        <p className="text-body-md section-subtitle" style={{ margin: '0 auto', maxWidth: 600 }}>
+          Transformative outcomes realized by organizations operating at the bleeding edge.
+        </p>
+      </div>
+
+      <div className="testimonials-scroller" data-reveal data-delay="1">
+        <InfiniteMovingCards
+          items={testimonials}
+          direction="left"
+          speed="slow"
+          pauseOnHover
+        />
+        <InfiniteMovingCards
+          items={[...testimonials].reverse()}
+          direction="right"
+          speed="slow"
+          pauseOnHover
+          className="mt-4"
+        />
+      </div>
+    </section>
   )
 }

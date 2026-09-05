@@ -57,35 +57,28 @@
   margin: 0 auto;
 }
 
+/* Icon-only badge now (the wordmark text was dropped) — a circular chip
+   sized to the icon rather than the old wide text pill. */
 .about-brand-pill {
   display: inline-flex;
-  flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 6px 18px;
-  border-radius: var(--radius-full);
+  padding: 10px;
+  border-radius: 50%;
   background: rgba(208, 188, 255, 0.1);
   border: 1px solid rgba(208, 188, 255, 0.2);
-  color: var(--color-primary);
-  font-size: 13px;
-  font-weight: 600;
-  white-space: nowrap;
   margin-bottom: 24px;
 }
 .about-brand-pill-icon {
-  width: 22px;
-  height: 22px;
+  /* A little bigger than the original 22px now that it's the badge's only
+     content, but kept modest rather than making it a hero-sized emblem. */
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   object-fit: contain;
   flex-shrink: 0;
   display: block;
   filter: drop-shadow(0 0 6px rgba(192, 132, 252, 0.7));
-}
-.about-brand-pill span {
-  white-space: nowrap;
-  display: inline-block;
-  line-height: 1;
 }
 
 /* Brand Showcase Card */
@@ -95,7 +88,9 @@
   grid-template-columns: 1fr;
   gap: 32px;
   padding: 32px;
-  border-radius: var(--radius-lg);
+  /* Softer, larger radius reads more contemporary than the old 12px
+     corners, and matches the rounding used on the bento/service cards. */
+  border-radius: 28px;
   align-items: center;
   background: rgba(26, 22, 34, 0.7);
   backdrop-filter: blur(24px);
@@ -103,6 +98,11 @@
   border: 1px solid rgba(208, 188, 255, 0.18);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   max-width: 1040px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.about-brand-showcase:hover {
+  border-color: rgba(208, 188, 255, 0.3);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 @media (min-width: 840px) {
   .about-brand-showcase {
@@ -111,30 +111,45 @@
     gap: 40px;
   }
 }
+/* No more bordered/backgrounded panel around the logo — it floats directly
+   on the card, lit by a soft ambient glow instead of framed in a box. */
 .about-brand-showcase-visual {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-md);
-  overflow: hidden;
   position: relative;
-  background: radial-gradient(circle at center, rgba(124, 58, 237, 0.25) 0%, rgba(15, 13, 21, 0.9) 70%);
-  border: 1px solid rgba(208, 188, 255, 0.15);
-  padding: 24px 20px;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
   width: 100%;
 }
+.about-brand-visual-glow {
+  position: absolute;
+  inset: -18%;
+  background: radial-gradient(circle at center, rgba(124, 58, 237, 0.32) 0%, rgba(124, 58, 237, 0.1) 45%, transparent 72%);
+  filter: blur(36px);
+  pointer-events: none;
+  z-index: 0;
+}
 .about-brand-master-logo {
+  position: relative;
+  z-index: 1;
   width: 100%;
-  max-width: 280px;
+  max-width: 300px;
   height: auto;
-  border-radius: var(--radius-sm);
-  filter: drop-shadow(0 0 20px rgba(192, 132, 252, 0.4));
+  filter: drop-shadow(0 4px 28px rgba(0, 0, 0, 0.55)) drop-shadow(0 0 22px rgba(192, 132, 252, 0.4));
   transition: transform 0.4s ease, filter 0.4s ease;
+  /* The source PNG is a flat black square canvas, so removing the CSS
+     frame around it wasn't enough — the canvas edge itself still read as
+     a box. This masks it into a soft-edged emblem instead: a circle
+     "at center" with no explicit radius defaults to farthest-corner
+     sizing, so 70% of that radius lands exactly on the square's own edge
+     midpoints (side/2 ÷ side·√2/2 ≈ 0.707) — the fade only begins there
+     and completes at the very corners, which is where the artwork (the
+     centered emblem and wordmark) is empty background anyway. */
+  -webkit-mask-image: radial-gradient(circle at center, #000 55%, transparent 92%);
+  mask-image: radial-gradient(circle at center, #000 55%, transparent 92%);
 }
 .about-brand-showcase:hover .about-brand-master-logo {
   transform: scale(1.03);
-  filter: drop-shadow(0 0 30px rgba(192, 132, 252, 0.65));
+  filter: drop-shadow(0 4px 28px rgba(0, 0, 0, 0.55)) drop-shadow(0 0 32px rgba(192, 132, 252, 0.65));
 }
 .about-brand-showcase-info {
   display: flex;
@@ -143,16 +158,22 @@
   text-align: left;
 }
 .showcase-tag {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   align-self: flex-start;
-  padding: 4px 12px;
+  padding: 4px 12px 4px 10px;
   border-radius: var(--radius-full);
   background: rgba(208, 188, 255, 0.12);
+  border: 1px solid rgba(208, 188, 255, 0.18);
   color: #c084fc;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+.showcase-tag-icon {
+  font-size: 14px;
 }
 .showcase-title {
   font-size: 32px;
@@ -180,25 +201,66 @@
 .showcase-metrics {
   display: flex;
   flex-wrap: wrap;
-  gap: 24px;
+  gap: 12px;
   margin-top: 16px;
   padding-top: 20px;
   border-top: 1px solid rgba(208, 188, 255, 0.12);
 }
-.showcase-metric-item {
+/* Icon-led stat chips replace the old plain stacked numbers — reads as a
+   small dashboard rather than a text list, and gives each stat its own
+   contained, hoverable surface. */
+.showcase-metric-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(208, 188, 255, 0.14);
+  transition: border-color 0.25s ease, background 0.25s ease, transform 0.25s ease;
+  /* Flex/grid items default to min-width:auto, which refuses to shrink
+     below the content's intrinsic width — combined with the nowrap label
+     below, that was forcing the whole card (and its ancestors) wider than
+     the viewport on the mobile 2-column layout. This lets the chip shrink
+     to fit its track instead. */
+  min-width: 0;
+}
+.showcase-metric-chip:hover {
+  border-color: rgba(208, 188, 255, 0.4);
+  background: rgba(208, 188, 255, 0.07);
+  transform: translateY(-2px);
+}
+.showcase-metric-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(208, 188, 255, 0.12);
+  color: var(--color-primary);
+  font-size: 17px;
+  flex-shrink: 0;
+}
+.showcase-metric-text {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
+  min-width: 0;
 }
 .showcase-metric-val {
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 800;
   color: var(--color-primary);
+  line-height: 1.15;
 }
 .showcase-metric-lbl {
-  font-size: 12px;
+  font-size: 11px;
   color: #94a3b8;
   letter-spacing: 0.02em;
+  /* Allowed to wrap: "Autonomous AI Agents" has nowhere to go but down in
+     the mobile 2-column layout, and a nowrap label is exactly what was
+     forcing the chip (and the whole card) wider than the viewport. */
 }
 
 /* Team Section */
@@ -325,3 +387,58 @@
   line-height: 1.7;
   flex: 1;
 }
+
+/* ============================================
+   About – Mobile Adaptations
+   ============================================ */
+@media (max-width: 767px) {
+  .about-hero {
+    padding-top: 36px;
+    padding-bottom: 24px;
+  }
+
+  .about-headline {
+    font-size: clamp(26px, 7.4vw, 34px);
+    line-height: 1.22;
+  }
+
+  .about-brand-showcase {
+    margin-top: 28px;
+    padding: 22px 20px;
+    gap: 22px;
+  }
+
+  .showcase-title { font-size: 25px; }
+  .showcase-motto { font-size: 16px; }
+
+  /* Two readable columns of metrics instead of one long wrapped row */
+  .showcase-metrics {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-top: 12px;
+    padding-top: 16px;
+  }
+  .showcase-metric-val { font-size: 19px; }
+
+  .team-section { padding: 40px 0; }
+  .team-header { margin-bottom: 28px; }
+  .team-grid { gap: 20px; }
+
+  .team-card {
+    padding: 18px;
+    border-radius: 16px;
+  }
+
+  /* A fixed 320px photo box distorts across phone widths – let the
+     image scale with the card instead. */
+  .team-card-img-wrapper {
+    height: auto;
+    aspect-ratio: 4 / 5;
+    max-height: 380px;
+    margin-bottom: 16px;
+  }
+
+  .team-title-role { font-size: 22px; }
+}
+

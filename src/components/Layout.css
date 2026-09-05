@@ -59,7 +59,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 72px;
+  height: var(--header-height);
+  gap: 12px;
 }
 
 /* Brand */
@@ -70,6 +71,7 @@
   text-decoration: none;
   transition: opacity 0.2s;
   white-space: nowrap;
+  min-width: 0; /* lets the text block shrink instead of overflowing */
 }
 .brand:hover { opacity: 0.95; }
 .solisio-brand-icon {
@@ -185,10 +187,16 @@
   color: var(--color-on-surface);
   cursor: pointer;
   padding: 8px;
+  /* Full fingertip target regardless of the icon glyph size */
+  width: var(--tap-target);
+  height: var(--tap-target);
+  flex-shrink: 0;
   border-radius: var(--radius-sm);
   transition: background 0.2s;
+  -webkit-tap-highlight-color: transparent;
 }
 .mobile-menu-toggle:hover { background: rgba(255,255,255,0.06); }
+.mobile-menu-toggle:active { background: rgba(255,255,255,0.12); }
 @media (min-width: 768px) {
   .mobile-menu-toggle { display: none; }
 }
@@ -198,19 +206,38 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 16px var(--spacing-margin-mobile);
+  padding: 16px var(--spacing-margin-mobile)
+           calc(16px + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid rgba(255,255,255,0.06);
+  /* Stay scrollable on short screens (landscape phones, small handsets).
+     The vh line is the fallback: browsers without dvh discard the whole
+     calc(), which would otherwise drop the max-height entirely. */
+  max-height: calc(100vh - var(--header-height));
+  max-height: calc(100dvh - var(--header-height));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  animation: mobile-nav-in 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes mobile-nav-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 .mobile-nav-link {
   font-size: 16px;
   font-weight: 600;
   color: var(--color-on-surface-variant);
   text-decoration: none;
-  padding: 12px 0;
+  padding: 12px 4px;
+  min-height: var(--tap-target);
+  display: flex;
+  align-items: center;
   border-bottom: 1px solid rgba(255,255,255,0.04);
-  transition: color 0.2s;
+  border-radius: var(--radius-sm);
+  transition: color 0.2s, background 0.2s;
 }
 .mobile-nav-link:hover { color: var(--color-primary); }
+.mobile-nav-link:active { background: rgba(255,255,255,0.05); }
 .mobile-nav-link--active { color: var(--color-primary); }
 
 /* ---- Main ---- */
@@ -219,7 +246,7 @@
 }
 
 .site-main > section {
-  scroll-margin-top: 80px;
+  scroll-margin-top: calc(var(--header-height) + 8px);
 }
 
 /* ---- Footer ---- */
@@ -340,4 +367,66 @@
   background: var(--color-surface-container-high);
   border-color: var(--color-primary);
   transform: translateY(-2px);
+}
+
+/* ============================================
+   Mobile Adaptations
+   ============================================ */
+
+/* Compact the header bar so the brand and the menu button always fit */
+@media (max-width: 767px) {
+  :root {
+    --header-height: 64px;
+  }
+
+  .solisio-brand-icon {
+    width: 36px;
+    height: 36px;
+  }
+  .brand { gap: 10px; }
+  .brand-name { font-size: 16px; }
+  .brand-tagline { font-size: 9px; letter-spacing: 0.1em; }
+
+  /* Sit clear of the thumb zone and any home-indicator inset */
+  .back-to-top-btn {
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    right: 16px;
+    width: var(--tap-target);
+    height: var(--tap-target);
+  }
+
+  /* The single-column footer still needs the copyright divider that
+     only the desktop grid rule was providing. */
+  .footer-copy {
+    border-top: 1px solid var(--color-outline-variant);
+    padding-top: 20px;
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .footer-grid {
+    padding-top: 40px;
+    padding-bottom: calc(32px + env(safe-area-inset-bottom, 0px));
+    gap: 28px;
+  }
+
+  .footer-logo { font-size: 19px; }
+  .footer-logo-img { width: 32px; height: 32px; }
+}
+
+/* Very narrow handsets: drop the tagline rather than let the brand wrap */
+@media (max-width: 360px) {
+  .brand-tagline { display: none; }
+  .brand-name { font-size: 15px; }
+  .solisio-brand-icon { width: 32px; height: 32px; }
+}
+
+/* Landscape phones: the sticky bar eats too much of a short viewport */
+@media (max-height: 480px) and (orientation: landscape) {
+  :root {
+    --header-height: 56px;
+  }
+  .solisio-brand-icon { width: 32px; height: 32px; }
 }
